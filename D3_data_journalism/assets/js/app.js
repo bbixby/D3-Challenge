@@ -16,7 +16,7 @@ var height = svgHeight - margin.top - margin.bottom;
 // Create an SVG wrapper, append an SVG group that will hold our chart,
 // and shift the latter by left and top margins.
 var svg = d3
-  .select(".scatter")
+  .select("#scatter")
   .append("svg")
   .attr("width", svgWidth)
   .attr("height", svgHeight);
@@ -79,7 +79,7 @@ function updateToolTip(chosenXAxis, circlesGroup, chosenYAxis) {
   var label;
 
   if (chosenXAxis === "in_poverty") {
-    label = "in_poverty";
+    label = "poverty";
   }
   else {
     label = "age";
