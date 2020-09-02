@@ -1,22 +1,25 @@
 // here goes nothing!
+//pull the csv data from raw GitHub
 var url = 'https://raw.githubusercontent.com/bbixby/D3-challenge/master/D3_data_journalism/assets/data/data.csv'
+//set the height and width of the SVG area
 var svgWidth = 960;
-var svgHeight = 500;
+var svgHeight = 600;
 
+//set the margins
 var margin = {
   top: 20,
-  right: 40,
-  bottom: 80,
-  left: 100
+  right: 20,
+  bottom: 120,
+  left: 110
 };
 
+//chart area less margins
 var width = svgWidth - margin.left - margin.right;
 var height = svgHeight - margin.top - margin.bottom;
 
 // Create an SVG wrapper, append an SVG group that will hold our chart,
 // and shift the latter by left and top margins.
-var svg = d3
-  .select("#scatter")
+var svg = d3.select("#scatter")
   .append("svg")
   .attr("width", svgWidth)
   .attr("height", svgHeight);
@@ -94,14 +97,20 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
   if (chosenXAxis === "poverty") {
     xlabel = "poverty";
   }
-  else {
+  else if (chosenXAxis === "age") {
     xlabel = "age";
+  }
+  else {
+    xlabel = 'income'
   };
 
   var ylabel;
 
   if (chosenYAxis === "healthcare") {
     ylabel = "healthcare";
+  }
+  else if (chosenYAxis === "obesity") {
+    ylabel = "obesity"
   }
   else {
     ylabel = "smokes"
@@ -110,8 +119,9 @@ function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
   var toolTip = d3.tip()
     .attr("class", "tooltip")
     .offset([80, -60])
-    .html(function(d) {
-      return (`${d.state}<br>${d.abbr}<br>${xlabel} ${data[chosenXAxis]}<br>${ylabel} ${d[chosenYAxis]}`);
+    .style("background", "lightyellow")
+    .html(function(data) {
+      return (`${data.state} | ${data.abbr}<br>${xlabel} ${data[chosenXAxis]}<br>${ylabel} ${data[chosenYAxis]}`);
     });
 
   circlesGroup.call(toolTip);
@@ -132,8 +142,8 @@ d3.csv(url).then(function(stateData) {
 
   // parse data
   stateData.forEach(data => {
-    data.state = data.state;
-    data.abbr = data.abbr;
+    // data.state = data.state;
+    // data.abbr = data.abbr;
     data.poverty = +data.poverty;
     data.age = +data.age;
     data.income = +data.income;
@@ -171,7 +181,7 @@ d3.csv(url).then(function(stateData) {
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
     .attr("cy", d => yLinearScale(d[chosenYAxis]))
     .attr("r", 20)
-    .attr("fill", "blue")
+    .attr("fill", "green")
     .attr("opacity", ".5");
 
   // Create group for two x-axis labels
@@ -191,10 +201,17 @@ d3.csv(url).then(function(stateData) {
     .attr("value", "age") // value to grab for event listener
     .classed("inactive", true)
     .text("Age (Median)");
+  
+  var incomeLabel = xlabelsGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 60)
+    .attr("value", "income")
+    .classed("inactive", true)
+    .text("Household Income (Median)");
 
 // Create group for y-axis labels
   var ylabelsGroup = chartGroup.append("g")
-    .attr("transform", `translate(${0-(margin.left/4)},${height/2})`)
+    .attr("transform", `translate(${0-(margin.left/3)},${height/2})`)
 
   var healthcareLabel = ylabelsGroup.append("text")
     .attr("x", 0)
@@ -208,8 +225,16 @@ d3.csv(url).then(function(stateData) {
     .attr("x", 0)
     .attr("y", 0 - 40)
     .attr("value", "smokes")
-    .classed("active", true)
+    .classed("inactive", true)
     .text("Smokes (%)")
+    .attr("transform", "rotate(-90)");
+
+  var obesityLabel = ylabelsGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 0 - 20)
+    .attr("value", "obesity")
+    .classed("inactive", true)
+    .text("Obesity (%)")
     .attr("transform", "rotate(-90)");
 
   // updateToolTip function above csv import
@@ -247,6 +272,9 @@ console.log(chosenXAxis);
           ageLabel
             .classed("active", false)
             .classed("inactive", true);
+          incomeLabel
+            .classed("active", false)
+            .classed("inactive", true);
         }
         else if (chosenXAxis === "age") {
           povertyLabel
@@ -255,6 +283,20 @@ console.log(chosenXAxis);
           ageLabel
             .classed("active", true)
             .classed("inactive", false);
+          incomeLabel
+            .classed("active", false)
+            .classed("inactive", true);
+        }
+        else {
+          povertyLabel
+            .classed("active", false)
+            .classed("inactive", true);
+          ageLabel
+            .classed("active", false)
+            .classed("inactive", true);
+          incomeLabel
+            .classed("active", true)
+            .classed("inactive", false);          
         }
       }
     });
@@ -268,12 +310,27 @@ console.log(chosenXAxis);
   console.log(chosenYAxis);
         yLinearScale = yScale(stateData, chosenYAxis);
         yAxis = renderAxisY(yLinearScale, yAxis);
-        circlesGroup = renderCircles(circlesGroup, yLinearScale, chosenYAxis, xLinearScale, chosenXAxis);
+        circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
+        circlesGroup = updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);
         if (chosenYAxis === 'healthcare') {
           healthcareLabel
             .classed('active', true)
             .classed('inactive', false);
           smokesLabel
+            .classed('active', false)
+            .classed('inactive', true);
+          obesityLabel
+            .classed('active', false)
+            .classed('inactive', true);
+        }
+        else if (chosenYAxis === 'smokes') {
+          healthcareLabel
+            .classed('active', false)
+            .classed('inactive', true);
+          smokesLabel
+            .classed('active', true)
+            .classed('inactive', false);
+          obesityLabel
             .classed('active', false)
             .classed('inactive', true);
         }
@@ -282,6 +339,9 @@ console.log(chosenXAxis);
             .classed('active', false)
             .classed('inactive', true);
           smokesLabel
+            .classed('active', false)
+            .classed('inactive', true);
+          obesityLabel
             .classed('active', true)
             .classed('inactive', false);
         }
