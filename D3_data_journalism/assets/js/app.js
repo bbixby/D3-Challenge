@@ -52,7 +52,7 @@ function yScale(stateData, chosenYAxis) {
 }
 
 // function used for updating xAxis var upon click on axis label
-function renderAxesX(newXScale, xAxis) {
+function renderAxisX(newXScale, xAxis) {
   var bottomAxis = d3.axisBottom(newXScale);
 
   xAxis.transition()
@@ -63,7 +63,7 @@ function renderAxesX(newXScale, xAxis) {
 }
 
 // function used for updating yAxis var upon click on y-axis label
-function renderAxesY(newYScale, yAxis) {
+function renderAxisY(newYScale, yAxis) {
   var leftAxis = d3.axisLeft(newYScale);
 
   yAxis.transition()
@@ -87,22 +87,31 @@ function renderCircles(circlesGroup, newXScale, chosenXAxis, newYScale, chosenYA
 }
 
 // function used for updating circles group with new tooltip
-function updateToolTip(chosenXAxis, circlesGroup, chosenYAxis) {
+function updateToolTip(chosenXAxis, chosenYAxis, circlesGroup) {
 
-  var label;
+  var xlabel;
 
   if (chosenXAxis === "poverty") {
-    label = "poverty";
+    xlabel = "poverty";
   }
   else {
-    label = "age";
+    xlabel = "age";
+  };
+
+  var ylabel;
+
+  if (chosenYAxis === "healthcare") {
+    ylabel = "healthcare";
   }
+  else {
+    ylabel = "smokes"
+  };
 
   var toolTip = d3.tip()
     .attr("class", "tooltip")
     .offset([80, -60])
     .html(function(d) {
-      return (`${d.state}<br>${d.abbr} ${data[chosenXAxis]}`);
+      return (`${d.state}<br>${d.abbr}<br>${xlabel} ${data[chosenXAxis]}<br>${ylabel} ${d[chosenYAxis]}`);
     });
 
   circlesGroup.call(toolTip);
@@ -160,7 +169,7 @@ d3.csv(url).then(function(stateData) {
     .enter()
     .append("circle")
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
-    .attr("cy", d => yLinearScale(d.healthcare))
+    .attr("cy", d => yLinearScale(d[chosenYAxis]))
     .attr("r", 20)
     .attr("fill", "blue")
     .attr("opacity", ".5");
@@ -195,8 +204,16 @@ d3.csv(url).then(function(stateData) {
     .text("Lacks Healthcare (%)")
     .attr("transform", "rotate(-90)");
 
+  var smokesLabel = ylabelsGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 0 - 40)
+    .attr("value", "smokes")
+    .classed("active", true)
+    .text("Smokes (%)")
+    .attr("transform", "rotate(-90)");
+
   // updateToolTip function above csv import
-  var circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+  // var circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
 
   // x axis labels event listener
   xlabelsGroup.selectAll("text")
@@ -214,13 +231,13 @@ console.log(chosenXAxis);
         xLinearScale = xScale(stateData, chosenXAxis);
 
         // updates x axis with transition
-        xAxis = renderAxesX(xLinearScale, xAxis);
+        xAxis = renderAxisX(xLinearScale, xAxis);
 
         // updates circles with new x values
-        circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
+        circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
 
         // updates tooltips with new info
-        circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+        circlesGroup = updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);
 
         // changes classes to change bold text
         if (chosenXAxis === "poverty") {
@@ -250,20 +267,27 @@ console.log(chosenXAxis);
         chosenYAxis = value;
   console.log(chosenYAxis);
         yLinearScale = yScale(stateData, chosenYAxis);
-        yAxis = renderAxesY(yLinearScale, yAxis);
+        yAxis = renderAxisY(yLinearScale, yAxis);
         circlesGroup = renderCircles(circlesGroup, yLinearScale, chosenYAxis, xLinearScale, chosenXAxis);
         if (chosenYAxis === 'healthcare') {
           healthcareLabel
             .classed('active', true)
             .classed('inactive', false);
+          smokesLabel
+            .classed('active', false)
+            .classed('inactive', true);
         }
         else {
           healthcareLabel
             .classed('active', false)
             .classed('inactive', true);
+          smokesLabel
+            .classed('active', true)
+            .classed('inactive', false);
         }
       }
     });
+  updateToolTip(chosenXAxis, chosenYAxis, circlesGroup);
 
 }).catch(function(error) {
   console.log(error);
