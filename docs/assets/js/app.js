@@ -2,15 +2,15 @@
 //pull the csv data from raw GitHub
 var url = 'https://raw.githubusercontent.com/bbixby/D3-challenge/master/D3_data_journalism/assets/data/data.csv'
 //set the height and width of the SVG area
-var svgWidth = 900;
+var svgWidth = 600;
 var svgHeight = 600;
 
 //set the margins
 var margin = {
-  top: 20,
-  right: 20,
-  bottom: 120,
-  left: 110
+  top: 10,
+  right: 10,
+  bottom: 100,
+  left: 100
 };
 
 //chart area less margins
@@ -236,7 +236,7 @@ d3.csv(url).then(function(stateData) {
 
   var healthcareLabel = ylabelsGroup.append("text")
     .attr("x", 0)
-    .attr("y", 0 - 60)
+    .attr("y", 0 - 40)
     .attr("value", "healthcare") // value to grab for event listener
     .classed("active", true)
     .text("Lacks Healthcare (%)")
@@ -244,7 +244,7 @@ d3.csv(url).then(function(stateData) {
 
   var smokesLabel = ylabelsGroup.append("text")
     .attr("x", 0)
-    .attr("y", 0 - 40)
+    .attr("y", 0 - 20)
     .attr("value", "smokes")
     .classed("inactive", true)
     .text("Smokes (%)")
@@ -252,7 +252,7 @@ d3.csv(url).then(function(stateData) {
 
   var obesityLabel = ylabelsGroup.append("text")
     .attr("x", 0)
-    .attr("y", 0 - 20)
+    .attr("y", 0)
     .attr("value", "obesity")
     .classed("inactive", true)
     .text("Obesity (%)")
