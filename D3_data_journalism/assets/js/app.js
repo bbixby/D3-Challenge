@@ -328,7 +328,8 @@ d3.csv(url).then(function(stateData) {
       var value = d3.select(this).attr("value");
       if (value !==chosenYAxis) {
         chosenYAxis = value;
-  console.log(chosenYAxis);
+  //commented out debugging chosenYAxis console.log
+  //console.log(chosenYAxis);
         yLinearScale = yScale(stateData, chosenYAxis);
         yAxis = renderAxisY(yLinearScale, yAxis);
         circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis, yLinearScale, chosenYAxis);
